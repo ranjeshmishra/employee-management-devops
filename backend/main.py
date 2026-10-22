@@ -1,4 +1,9 @@
-
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from database import get_db
+from sqlalchemy import select
+from database import SessionLocal
+from models import Employee
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 
@@ -47,21 +52,47 @@ employees = [
 ]
 
 
+
+
 @app.get("/api/employees")
-def get_employees():
-    return employees
+def get_employees(db: Session = Depends(get_db)):
+    result = db.scalars(
+        select(Employee).order_by(Employee.id)
+    ).all()
+
+    return [
+        {
+            "id": employee.id,
+            "name": employee.name,
+            "department": employee.department,
+            "salary": employee.salary,
+        }
+        for employee in result
+    ]
+
+
 
 
 @app.get("/api/employees/{employee_id}")
-def get_employee(employee_id: int):
-    for employee in employees:
-        if employee["id"] == employee_id:
-            return employee
+def get_employee(
+    employee_id: int,
+    db: Session = Depends(get_db),
+):
+    employee = db.get(Employee, employee_id)
 
-    raise HTTPException(
-        status_code=404,
-        detail="Employee not found"
-    )
+    if employee is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Employee not found",
+        )
+
+    return {
+        "id": employee.id,
+        "name": employee.name,
+        "department": employee.department,
+        "salary": employee.salary,
+    }
+
 
 
 class EmployeeCreate(BaseModel):
@@ -70,58 +101,91 @@ class EmployeeCreate(BaseModel):
     salary: int = Field(gt=0)
 
 
-@app.post(
-    "/api/employees",
-    status_code=status.HTTP_201_CREATED
-)
-def create_employee(employee: EmployeeCreate):
-    new_id = max(
-        (item["id"] for item in employees),
-        default=0
-    ) + 1
 
-    new_employee = {
-        "id": new_id,
-        "name": employee.name,
-        "department": employee.department,
-        "salary": employee.salary
+@app.post("/api/employees", status_code=status.HTTP_201_CREATED)
+def create_employee(
+    employee: EmployeeCreate,
+    db: Session = Depends(get_db),
+):
+    new_employee = Employee(
+        name=employee.name,
+        department=employee.department,
+        salary=employee.salary,
+    )
+
+    db.add(new_employee)
+
+    try:
+        db.commit()
+        db.refresh(new_employee)
+    except Exception:
+        db.rollback()
+        raise
+
+    return {
+        "id": new_employee.id,
+        "name": new_employee.name,
+        "department": new_employee.department,
+        "salary": new_employee.salary,
     }
 
-    employees.append(new_employee)
-
-    return new_employee
 
 
 @app.put("/api/employees/{employee_id}")
 def update_employee(
     employee_id: int,
-    updated_data: EmployeeCreate
+    updated_data: EmployeeCreate,
+    db: Session = Depends(get_db),
 ):
-    for employee in employees:
-        if employee["id"] == employee_id:
-            employee["name"] = updated_data.name
-            employee["department"] = updated_data.department
-            employee["salary"] = updated_data.salary
+    employee = db.get(Employee, employee_id)
 
-            return employee
+    if employee is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Employee not found",
+        )
 
-    raise HTTPException(
-        status_code=404,
-        detail="Employee not found"
-    )
+    employee.name = updated_data.name
+    employee.department = updated_data.department
+    employee.salary = updated_data.salary
+
+    try:
+        db.commit()
+        db.refresh(employee)
+    except Exception:
+        db.rollback()
+        raise
+
+    return {
+        "id": employee.id,
+        "name": employee.name,
+        "department": employee.department,
+        "salary": employee.salary,
+    }
+
+
 
 @app.delete("/api/employees/{employee_id}")
-def delete_employee(employee_id: int):
-    for employee in employees:
-        if employee["id"] == employee_id:
-            employees.remove(employee)
+def delete_employee(
+    employee_id: int,
+    db: Session = Depends(get_db),
+):
+    employee = db.get(Employee, employee_id)
 
-            return {
-                "message": "Employee deleted successfully",
-                "employee_id": employee_id
-            }
+    if employee is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Employee not found",
+        )
 
-    raise HTTPException(
-        status_code=404,
-        detail="Employee not found"
-    )
+    try:
+        db.delete(employee)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
+    return {
+        "message": "Employee deleted successfully",
+        "employee_id": employee_id,
+    }

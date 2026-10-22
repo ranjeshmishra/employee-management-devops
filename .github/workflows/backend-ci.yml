@@ -34,6 +34,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
+
       - name: Run Automated Tests
+        env:
+          DATABASE_URL: sqlite+pysqlite:///:memory:
         run: |
-          python -m pytest test_main.py -v
+          python -m pytest -v
