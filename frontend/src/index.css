@@ -1,0 +1,15 @@
+
+:root {
+  font-family: Arial, sans-serif;
+  color: #222;
+  background-color: #f8fafc;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+#root {
+  width: 100%;
+}

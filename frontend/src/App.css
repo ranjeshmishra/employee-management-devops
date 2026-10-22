@@ -1,0 +1,99 @@
+
+.dashboard {
+  width: 90%;
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 30px;
+  box-sizing: border-box;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard h1,
+.dashboard h2,
+.dashboard > p {
+  text-align: center;
+}
+
+.dashboard h1 {
+  color: #1e3a8a;
+}
+
+.dashboard h2 {
+  margin-top: 30px;
+}
+
+.dashboard form {
+  max-width: 420px;
+  margin: 20px auto 30px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+}
+
+.dashboard button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.dashboard button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.dashboard th,
+.dashboard td {
+  padding: 14px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.dashboard th {
+  background-color: #1e3a8a;
+  color: white;
+}
+
+.dashboard td {
+  color: #222;
+}
+
+.dashboard tbody tr:nth-child(even) {
+  background-color: #f1f5f9;
+}
+
+.dashboard .delete-button {
+  background-color: #dc2626;
+}
+
+.dashboard td button {
+  display: inline-block;
+  margin: 4px;
+}
