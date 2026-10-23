@@ -8,7 +8,9 @@ on:
   pull_request:
     branches:
       - main
-
+permissions:
+  contents: read
+  packages: write
 jobs:
   backend-tests:
     name: Run FastAPI Tests
@@ -74,20 +76,26 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Backend Docker Image
+      - name: Build and Push Backend Docker Image
         uses: docker/build-push-action@v6
         with:
           context: ./backend
-          push: false
-          tags: employee-backend:ci
-
-      - name: Build Frontend Docker Image
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ghcr.io/ranjeshmishra/employee-backend:latest
+      - name: Build and Push Frontend Docker Image
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
-          push: false
-          tags: employee-frontend:ci
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ghcr.io/ranjeshmishra/employee-frontend:latest
