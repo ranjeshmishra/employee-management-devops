@@ -1,5 +1,5 @@
 name: Employee Management CI
-name: Employee Management Backend CI
+
 
 on:
   push:
