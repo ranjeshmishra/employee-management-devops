@@ -1,0 +1,15 @@
+
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+.env.*
+.git/
+.gitignore
+Dockerfile
+.dockerignore
+test_*.py
+create_tables.py
+seed_data.py

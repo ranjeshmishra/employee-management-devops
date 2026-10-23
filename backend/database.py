@@ -3,17 +3,41 @@ import os
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Docker Compose configuration
+DATABASE_HOST = os.getenv("DATABASE_HOST")
+DATABASE_PORT = os.getenv("DATABASE_PORT", "5432")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
+DATABASE_USER = os.getenv("DATABASE_USER")
+DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
 
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is not configured")
+if all([
+    DATABASE_HOST,
+    DATABASE_NAME,
+    DATABASE_USER,
+    DATABASE_PASSWORD,
+]):
+    database_url = URL.create(
+        drivername="postgresql+psycopg",
+        username=DATABASE_USER,
+        password=DATABASE_PASSWORD,
+        host=DATABASE_HOST,
+        port=int(DATABASE_PORT),
+        database=DATABASE_NAME,
+    )
+else:
+    # Existing Windows local configuration
+    database_url = os.getenv("DATABASE_URL")
+
+if not database_url:
+    raise RuntimeError("Database configuration is missing")
 
 engine = create_engine(
-    DATABASE_URL,
+    database_url,
     pool_pre_ping=True,
 )
 
@@ -31,9 +55,11 @@ def check_database_connection():
         )
         return result.fetchone()
 
+
 def get_db():
     with SessionLocal() as db:
         yield db
+
 
 if __name__ == "__main__":
     result = check_database_connection()
