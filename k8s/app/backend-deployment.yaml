@@ -35,7 +35,7 @@ spec:
             secretKeyRef:
               key: POSTGRES_PASSWORD
               name: postgres-secret
-        image: ghcr.io/ranjeshmishra/employee-backend:latest
+        image: ghcr.io/ranjeshmishra/employee-backend:b2c2cf2fc2b32a1aaf573e67fd5a62403611a59f
         imagePullPolicy: Always
         name: backend
         ports:
