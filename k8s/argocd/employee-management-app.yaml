@@ -1,0 +1,17 @@
+﻿apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: employee-management
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ranjeshmishra/employee-management-devops.git
+    targetRevision: main
+    path: k8s/app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: employee-management
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=false
