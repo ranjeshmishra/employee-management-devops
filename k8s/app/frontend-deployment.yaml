@@ -21,7 +21,7 @@ spec:
         app: employee-frontend
     spec:
       containers:
-      - image: ghcr.io/ranjeshmishra/employee-frontend:d1a4bc94c3e053db8b52a9812b16bbe22595d3d9
+      - image: ghcr.io/ranjeshmishra/employee-frontend:720f31ab7256cacfc5e077ca8b58e12a4d027518
         imagePullPolicy: Always
         name: frontend
         ports:
